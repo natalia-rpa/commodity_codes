@@ -6,7 +6,7 @@ def connect_to_google_sheets():
     print("connect to Google Sheets\n")
 
     try:
-        gc = gspread.service_account(filename='secrets/credentials.json')
+        gc = gspread.service_account(filename='static/secrets/credentials.json')
         spreadsheet_url = "https://docs.google.com/spreadsheets/d/1-NTvWqIKwqjEkUMHVL6ubhx_x9TiPwqxsXD7kZSS3WU/edit"
         ss = gc.open_by_url(spreadsheet_url)
         sheet = ss.worksheet("data2") 
@@ -42,7 +42,7 @@ def update_google_sheets(group_data, sheet):
     print("updating Google Sheets")
     cells_to_update = []
     commodity_col_index = 7
-    
+
     hs_code = group_data['final HS CODE'].iloc[0]
 
     for _, row_data in group_data.iterrows():

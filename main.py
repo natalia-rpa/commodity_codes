@@ -1,28 +1,22 @@
-import pandas as pd
 import spreadsheet_handler
 import sap_handler 
-import customtkinter as ctk
-#import app
+import app
 
 
 def main():
-    
-    #app.mainloop()
-    
     group_df, sheet = spreadsheet_handler.connect_to_google_sheets()
 
     session = sap_handler.init_sap()
-
+    
+    print("connected to SAP\n")
     for _, group_data in group_df:
         sap_handler.update_sap(session, group_data)
         spreadsheet_handler.update_google_sheets(group_data, sheet)
 
 
-
-
-
 if __name__ == "__main__":
-    main()  
+    ui = app.commodity_code_updater_app(main)
+    ui.mainloop()
 
     # commodity_col_index = 7 
  
