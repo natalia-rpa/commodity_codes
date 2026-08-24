@@ -3,3 +3,4 @@ pandas
 gspread
 pyperclip
 PIL
+pytest-playwright
