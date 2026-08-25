@@ -4,7 +4,8 @@ import threading
 from PIL import Image
 import os
 import shutil
-
+import pandas as pd
+import configparser
 
 class commodity_code_updater_app(ctk.CTk):
     def __init__(self, main_sap_task, main_desc_task):
@@ -16,7 +17,7 @@ class commodity_code_updater_app(ctk.CTk):
         self.selected_file_path = None
 
         # app window setup
-        self.geometry("450x480") 
+        self.geometry("450x400") 
         self.resizable(False, False)
 
         #display
@@ -36,20 +37,20 @@ class commodity_code_updater_app(ctk.CTk):
 
         # sap button
         self.sap_button = ctk.CTkButton(self, text="Start SAP Automation", command= lambda: self.button_clicked(self.sap_task),
-                                     width=250, height=50, font=("Helvetica", 16, "bold"), 
+                                     width=300, height=40, font=("Helvetica", 16, "bold"), 
                                      fg_color="#4CAF50", hover_color="#45a049")
         self.sap_button.pack(pady=10)
 
         # desc button
         self.desc_button = ctk.CTkButton(self, text="Start Description Scraping Automation", command= lambda: self.button_clicked(self.desc_task),
-                                     width=250, height=50, font=("Helvetica", 16, "bold"), 
+                                     width=300, height=40, font=("Helvetica", 16, "bold"), 
                                      fg_color="#4CAF50", hover_color="#45a049")
         self.desc_button.pack(pady=10)
 
         # update data button
-        self.update_data_button = ctk.CTkButton(self, text="Start Update Data", 
+        self.update_data_button = ctk.CTkButton(self, text="Update Data", 
                                                 command=lambda: self.open_file_popup(self.desc_task),
-                                                width=250, height=50, font=("Helvetica", 16, "bold"), 
+                                                width=300, height=40, font=("Helvetica", 16, "bold"), 
                                                 fg_color="#4CAF50", hover_color="#45a049")
         self.update_data_button.pack(pady=10)
 
@@ -67,11 +68,10 @@ class commodity_code_updater_app(ctk.CTk):
 
     def open_file_popup(self, task_to_run):
 
-
-
             popup = ctk.CTkToplevel(self)
             popup.geometry("400x200")
             popup.resizable(False, False)
+
             # upper panel
             popup.iconbitmap("static/hiab.ico")
             popup.title("commodity code updater")
@@ -95,8 +95,7 @@ class commodity_code_updater_app(ctk.CTk):
                     self.selected_file_path = file_path
                     file_label.configure(text=os.path.basename(file_path))
 
-            
-
+        
 
             def apply():
                 if not self.selected_file_path:
@@ -105,8 +104,12 @@ class commodity_code_updater_app(ctk.CTk):
 
                 # import file to data folder
                 target_folder = "data"
-                target_filename = "Nomenclature EN.xlsx"
+                target_filename = "Nomenclature EN.csv"
                 target_path = os.path.join(target_folder, target_filename)
+
+                #conver xlsx to csv
+                # df = pd.read_excel(self.selected_file_path)
+                # df.to_csv(target_path, index=False)
 
                 try:
                     if os.path.exists(target_path):
@@ -126,7 +129,7 @@ class commodity_code_updater_app(ctk.CTk):
 
             ctk.CTkButton(popup, text="Apply", command=apply, width=100).pack(side="left", padx=10)
 
-            ctk.CTkButton(popup, text="Run", command=lambda: task_to_run, width=100).pack(side="left", padx=10)
+            ctk.CTkButton(popup, text="Run", command=lambda: task_to_run, width=100, fg_color="#4CAF50", hover_color="#45a049").pack(side="left", padx=10)
 
 
 
@@ -138,8 +141,8 @@ class commodity_code_updater_app(ctk.CTk):
                 
             self.status_label.configure(text="Status: Finished successfully!")
         except Exception as e:
-            print(f"CRITICAL ERROR: {str(e)}")
-            self.status_label.configure(text="Status: Process failed with errors.")
+            print(f"eerror:{str(e)}")
+            self.status_label.configure(text=f"Error: check if you're in SAP main GUI", text_color="red")
         finally:
             self.sap_button.configure(state="normal")
             self.desc_button.configure(state="normal")

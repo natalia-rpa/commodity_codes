@@ -29,13 +29,15 @@ def init_sap():
     return session
 
 
-def update_sap(session,group_data):
+def update_sap(session,group_data,hs_code):
     try:
         group_data['Material'].to_clipboard(index=False, header=False)
 
         clipboard = pyperclip.paste()
         print("clipboard: ", clipboard)
         # time.sleep(1)
+        print("batch button\n")
+        session.findById("wnd[0]/usr/btn%_S_MATNR_%_APP_%-VALU_PUSH").press()
 
 
         # clear button in multiple selection
@@ -62,13 +64,13 @@ def update_sap(session,group_data):
         session.findById("wnd[0]/tbar[1]/btn[8]").press()
         time.sleep(3)
 
-        #catch  status bar    
-        print("catch status bar\n")
-        status_bar = session.findById("wnd[0]/sbar")
-        print("status bar: ", status_bar.text)
-        if ( status_bar.text == "No data found with given inputs"):
-            print("no data found with given inputs\n")
-            raise Exception("no data found with given inputs", )
+        # #catch  status bar    
+        # print("catch status bar\n")
+        # status_bar = session.findById("wnd[0]/sbar")
+        # print("status bar: ", status_bar.text)
+        # if ( status_bar.text == "No data found with given inputs"):
+        #     print("no data found with given inputs\n")
+        #     raise Exception("no data found with given inputs", )
 
         #select all
         print("select all\n")

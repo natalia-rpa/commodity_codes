@@ -2,13 +2,23 @@ from sqlite3.dbapi2 import Row
 import spreadsheet_handler
 import sap_handler 
 import app
-import web_handler
+
+import configparser
+
+config = configparser.ConfigParser()
+config.read('static/config.ini')
+
+id_spreadsheet = config['GoogleSheets']['id_spreadsheet']
+sap_task_sheet = config['GoogleSheets']['sap_task_sheet']
+desc_task_sheet = config['GoogleSheets']['desc_task_sheet']
+guide_sheet = config['GoogleSheets']['guide_sheet']
+excel_path = config['LocalFiles']['excel_path']
+
 
 def main_sap():
-    sheet_name = "data2"
-    df, sheet = spreadsheet_handler.connect_to_google_sheets(sheet_name)
-    index_to_update = 7
-    
+
+    df, sheet = spreadsheet_handler.connect_to_google_sheets(sap_task_sheet)
+
     # diff  Commodity_Code final HS CODE
     diff_df = df[df['Commodity_Code'] != df['final HS CODE']]
 
@@ -18,28 +28,74 @@ def main_sap():
     session = sap_handler.init_sap()
 
     print("connected to SAP\n")
-    for _, group_data in group_df:
-        if not sap_handler.update_sap(session, group_data):
-            print("sap error\n")
-            return
-        spreadsheet_handler.update_google_sheets(group_data, sheet)
+    for hs_code, group_data in group_df:
+        print("updating HS Code: ", hs_code)
+        spreadsheet_handler.update_data_sheets(group_data, sheet)
 
+        if not sap_handler.update_sap(session, group_data, hs_code):
+            print("sap problem \n")
+            break
+
+    print("sap task complete\n")
+    session.findById("wnd[0]/tbar[0]/btn[3]").press
+
+
+
+import pandas as pd
+import os
+import spreadsheet_handler
 
 def main_desc():
-    sheet_name = "guide"
-    index_to_update = 7
 
-    df, sheet = spreadsheet_handler.connect_to_google_sheets(sheet_name)
+    guide_df, guide_sheet = spreadsheet_handler.connect_to_google_sheets(guide_sheet)
 
-    df = web_handler.scrap(df)
+    input_codes = guide_df.iloc[:, 2].dropna().astype(str).str.strip().unique()
 
+    excel_path = os.path.join("data", "Nomenclature EN.xlsx")
 
-    for row in df:
-        if not web_handler.scrap(row):
-            print("web error\n")
-            return
-        spreadsheet_handler.update_google_sheets2(row, sheet)
-   
+    nom_df = pd.read_excel(excel_path, dtype=str)
+    
+    # a = codes, g = descriptions of Nomenclature EN.xlsx
+    col_a = nom_df.columns[0]
+    col_g = nom_df.columns[6]
+
+    # col c of guide sheet
+    col_c = guide_df.iloc[:, 2]
+    col_c = col_c.dropna()
+    col_c = col_c.astype(str).str.strip()
+    input_codes = col_c.unique()
+
+    
+    # strip spaces
+    nom_df['search_code'] = nom_df[col_a].astype(str).str.replace(' ', '')
+
+    # start searching
+    results_list = []
+    
+    for code in input_codes:
+            
+        # remove last 2 characters
+        prefix = code[:-2]
+        
+        # find matching codes with prefix
+        matches = nom_df[nom_df['search_code'].str.startswith(prefix, na=False)]
+        
+        for _, match_row in matches.iterrows():
+            results_list.append({
+                'Original Input Code': code,
+                'Matched Excel Code': match_row[col_a],
+                'Description': match_row[col_g]
+            })
+
+    # convert to df
+    results_df = pd.DataFrame(results_list)
+    print(f"\nscraping complete. Found {len(results_df)} total matching variations.")
+
+    _, desc_sheet = spreadsheet_handler.connect_to_google_sheets(desc_task_sheet)
+
+    spreadsheet_handler.upload_to_desc_sheet(results_df, desc_sheet)
+
+    
 
 if __name__ == "__main__":
     ui = app.commodity_code_updater_app(main_sap_task=main_sap, main_desc_task=main_desc)
