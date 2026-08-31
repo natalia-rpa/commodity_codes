@@ -40,18 +40,17 @@ def connect_to_google_sheets(sheet_name):
 
 def update_data_sheets(group_data, sheet):
     cells_to_update = []
-    commodity_col_index = 7
-
+    update_col_index = 10
     hs_code = group_data['final HS CODE'].iloc[0]
 
     for _, row_data in group_data.iterrows():
         sheet_row = row_data['sheet_row']
-        cells_to_update.append(gspread.Cell(row=sheet_row, col=commodity_col_index, value=group_data['final HS CODE'].iloc[0]))
+        cells_to_update.append(gspread.Cell(row=sheet_row, col=update_col_index, value="UPDATED"))
     
     # push changes
     sheet.update_cells(cells_to_update, value_input_option='USER_ENTERED')
     logger.info(
-        "Google Sheets updated: Commodity_Code set to %s for %d row(s).",
+        "Google Sheets updated: set %d row(s).",
         hs_code,
         len(cells_to_update),
     )

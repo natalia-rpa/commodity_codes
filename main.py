@@ -31,8 +31,11 @@ def main_sap():
     df, sheet = spreadsheet_handler.connect_to_google_sheets(sap_task_sheet)
 
     log_phase(logger, "STEP 2 — Find rows that need an update")
+
+    # drop rows where column K = updated
+    df = df[df['K'] != 'UPDATED']
     # diff  Commodity_Code final HS CODE
-    diff_df = df[df['Commodity_Code'] != df['final HS CODE']]
+   # diff_df = df[df['Commodity_Code'] != df['final HS CODE']]
     logger.info(
         "Rows where Commodity_Code differs from final HS CODE: %d (out of %d total)",
         len(diff_df),
