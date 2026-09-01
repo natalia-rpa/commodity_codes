@@ -33,7 +33,7 @@ def main_sap():
     log_phase(logger, "STEP 2 — Find rows that need an update")
 
     # drop rows where column K = updated
-    df = df[df['K'] != 'UPDATED']
+    diff_df = df[df['UPDATED'] != 'UPDATED']
     # diff  Commodity_Code final HS CODE
    # diff_df = df[df['Commodity_Code'] != df['final HS CODE']]
     logger.info(

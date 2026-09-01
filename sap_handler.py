@@ -88,7 +88,7 @@ def update_sap(session,group_data,hs_code):
        # time.sleep(2)
 
         #choose commodity code
-        logger.info("Setting commodity code (CCOD) to %s and applying mass change...", hs_code)
+        logger.info("Setting commodity code to %s ", hs_code)
         session.findById("wnd[0]/usr/tabsMAT_MASTER/tabpMAT_MASTER_FC3/ssubMAT_MASTER_SCA:ZMMR_MATERIAL_MASTER_UPD2:0103/cmbZPLANT_LIST_DROPDOWN").key = "CCOD"
         #time.sleep(2)
         session.findById("wnd[0]/usr/tabsMAT_MASTER/tabpMAT_MASTER_FC3/ssubMAT_MASTER_SCA:ZMMR_MATERIAL_MASTER_UPD2:0103/ctxtZPLANT_VALUE").text = hs_code

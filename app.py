@@ -111,14 +111,13 @@ class commodity_code_updater_app(ctk.CTk):
                     labels.append(material if material else item["hs_code"])
                 codes = ", ".join(labels)
                 self.status_label.configure(
-                    text=f"Finished with {len(skipped)} skipped: {codes}",
+                    text=f"Finished with {len(skipped)} skipped items",
                     text_color="orange",
                 )
                 self.after(0, lambda: self.show_skipped_codes(skipped))
                 logger.info(
-                    "Task finished with warnings: %d item(s) were skipped (%s).",
+                    "Task finished with warnings: %d items were skipped.",
                     len(skipped),
-                    codes,
                 )
             else:
                 self.status_label.configure(text="Status: Finished successfully!", text_color=["gray10", "gray90"])

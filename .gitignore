@@ -3,3 +3,6 @@ secrets/*
 __pycache__/*
 /__pycache__/
 static/secrets/credentials.json
+/dist/*
+/build/*
+/build.bat

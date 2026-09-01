@@ -40,8 +40,8 @@ def connect_to_google_sheets(sheet_name):
 
 def update_data_sheets(group_data, sheet):
     cells_to_update = []
-    update_col_index = 10
-    hs_code = group_data['final HS CODE'].iloc[0]
+    update_col_index = 11
+   # hs_code = group_data['final HS CODE'].iloc[0]
 
     for _, row_data in group_data.iterrows():
         sheet_row = row_data['sheet_row']
@@ -50,8 +50,8 @@ def update_data_sheets(group_data, sheet):
     # push changes
     sheet.update_cells(cells_to_update, value_input_option='USER_ENTERED')
     logger.info(
-        "Google Sheets updated: set %d row(s).",
-        hs_code,
+        "Google Sheets updated: set %d rows.",
+       # hs_code,
         len(cells_to_update),
     )
 
